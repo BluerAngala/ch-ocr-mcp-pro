@@ -1,9 +1,9 @@
 # CH OCR MCP Pro — Multi-Engine OCR MCP Server
 
 A [Model Context Protocol](https://modelcontextprotocol.io) server that gives AI
-assistants (Claude Code, Codex, Cursor, …) **OCR with first-class accuracy handling
+assistants (Claude Code, Copilot, Cursor, Codex, …) **OCR with first-class accuracy handling
 and evaluation**. It wraps three engines behind one interface and can score and
-compare them:
+compare them.
 
 > 🇨🇳 Optimized for Chinese users with auto-install and China mirror support
 
@@ -18,54 +18,76 @@ compare them:
 > ground truth (CER/WER)** — so you can pick the right engine per job instead of
 > guessing.
 
-## Features
+## 📚 Documentation
 
-- 📄 OCR images **and** PDFs (PDFs rasterized via PyMuPDF, per-page OCR).
-- 🎯 **Confidence scores** per line/word, with low-confidence flagging.
-- ⚖️ **`compare_engines`** — run every available engine on one document and report
-  pairwise agreement + a consensus pick (no ground truth required).
-- 📏 **`evaluate_accuracy`** — CER / WER, char/word accuracy %, and edit breakdown
-  (substitutions/deletions/insertions) against a ground-truth text file.
-- 🧹 Optional preprocessing (grayscale / denoise / deskew via OpenCV).
-- 🧱 Fails soft: an unavailable engine is reported, never crashes the server.
+- **RapidOCR Docs**: https://rapidai.github.io/RapidOCRDocs/latest/
+- **RapidOCR Install Guide**: https://rapidai.github.io/RapidOCRDocs/latest/install_usage/rapidocr/install/
+- **RapidOCR Quick Start**: https://rapidai.github.io/RapidOCRDocs/latest/quickstart/
 
-## Tools
+## 🤖 Let AI Install & Configure (Easiest)
 
-| Tool | Description |
-|------|-------------|
-| `list_engines()` | Which engines are usable on this machine + status. Call first. |
-| `ocr_image(path, engine="auto", lang="en", preprocess=False)` | OCR one image. |
-| `ocr_pdf(path, engine="auto", lang="en", pages="all", dpi=300)` | OCR a PDF. |
-| `batch_ocr(paths_or_glob, engine="auto", lang="en")` | OCR many images (glob or JSON list). |
-| `compare_engines(path, lang="en")` | Run all engines, compare agreement + consensus. |
-| `evaluate_accuracy(ground_truth_path, ocr_text="" \| ocr_path="", engine, lang)` | CER/WER vs ground truth. |
+**Just tell your AI assistant:**
 
-`engine` ∈ `auto` (=RapidOCR) · `rapidocr` · `tesseract` · `finereader`.
-`lang` is an ISO-639-1 code (`en`, `de`, `fr`, `ro`, `zh`, …), mapped per engine.
+```
+Install and configure ch-ocr-mcp-pro from https://github.com/BluerAngala/ch-ocr-mcp-pro.git
+```
 
-## Requirements
+**The AI will automatically:**
+1. Clone the project
+2. Install dependencies
+3. Detect your AI tool (VS Code/Claude/Cursor/etc.)
+4. Complete the configuration
 
-- **Python ≥ 3.12** (3.12 recommended — all wheels mature; 3.14 also works for the
-  core RapidOCR path but OpenCV/PyMuPDF wheels may lag).
-- **Tesseract** (optional): install [Tesseract-OCR](https://github.com/UB-Mannheim/tesseract/wiki)
-  and add `tesseract.exe` to PATH for that engine.
-- **ABBYY FineReader 16** (optional): a local install enables the FineReader engine
-  (Regular-CLI clipboard mode). Headless file output requires ABBYY's Extended CLI license.
-
-## Quick Start (Auto Install)
+**Or let AI run:**
 
 ```bash
+git clone https://github.com/BluerAngala/ch-ocr-mcp-pro.git ~/ch-ocr-mcp-pro
+cd ~/ch-ocr-mcp-pro
+python3 auto-config.py --mirror tsinghua --output-json
+```
+
+The AI reads the JSON output and configures your environment automatically.
+
+## ✨ Features
+
+| Feature | Description |
+|---------|-------------|
+| 🔧 Auto Install | `setup.py` installs all dependencies |
+| 🚀 China Mirrors | Tsinghua/Aliyun/Huawei mirror support |
+| 📦 Dependency Check | Auto-check on startup |
+| 🛠️ MCP Tools | `check_environment` and `install_dependencies` tools |
+
+## 🚀 Manual Install
+
+```bash
+# Clone
 git clone https://github.com/BluerAngala/ch-ocr-mcp-pro.git
 cd ch-ocr-mcp-pro
 
 # Auto install with China mirror
 python setup.py --mirror tsinghua
 
-# Check installation
-python setup.py --check
+# Check config
+cat mcp_config.example.json
 ```
 
-## Configure
+## 🛠️ MCP Tools
+
+| Tool | Description |
+|------|-------------|
+| `check_environment` | Check environment and dependencies |
+| `install_dependencies` | Auto-install dependencies (supports mirrors) |
+| `list_engines()` | Which engines are usable on this machine |
+| `ocr_image(path, engine, lang)` | OCR one image |
+| `ocr_pdf(path, engine, lang, pages, dpi)` | OCR a PDF |
+| `batch_ocr(paths_or_glob, engine, lang)` | OCR many images |
+| `compare_engines(path, lang)` | Run all engines, compare agreement |
+| `evaluate_accuracy(ground_truth, ocr_text/ocr_path)` | CER/WER vs ground truth |
+
+`engine` ∈ `auto` (=RapidOCR) · `rapidocr` · `tesseract` · `finereader`.
+`lang` is an ISO-639-1 code (`en`, `de`, `fr`, `zh`, …), mapped per engine.
+
+## 📋 Configure MCP
 
 Run `setup.py` and it will generate `mcp_config.example.json` automatically.
 
@@ -118,7 +140,7 @@ PYTHONUNBUFFERED = "1"
 PYTHONPATH = "/path/to/ch-ocr-mcp-pro/src"
 ```
 
-## Usage examples
+## Usage Examples
 
 ```
 > OCR this scan and tell me how confident you are.
@@ -131,7 +153,7 @@ PYTHONPATH = "/path/to/ch-ocr-mcp-pro/src"
   → evaluate_accuracy("truth.txt", ocr_path="page.png", engine="rapidocr") → CER/WER
 ```
 
-## Evaluation methodology
+## Evaluation Methodology
 
 `evaluate_accuracy` uses [`jiwer`](https://github.com/jitsi/jiwer) for **CER**
 (character error rate) and **WER** (word error rate). Lower is better;
@@ -143,8 +165,10 @@ the consensus.
 ## Development
 
 ```bash
-uv pip install -e ".[test]"
-pytest        # renders known text → OCR → asserts recovery + low CER
+python -m venv .venv
+source .venv/bin/activate
+pip install -e ".[test]"
+pytest
 ```
 
 ## Security

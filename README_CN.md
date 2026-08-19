@@ -15,7 +15,7 @@
 **直接告诉你的 AI 助手：**
 
 ```
-帮我安装并配置 ch-ocr-mcp-pro
+帮我安装并配置 ch-ocr-mcp-pro ， https://github.com/BluerAngala/ch-ocr-mcp-pro.git
 ```
 
 **AI 会自动：**
