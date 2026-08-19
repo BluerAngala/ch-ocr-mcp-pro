@@ -280,6 +280,20 @@ def main():
         print("   python setup.py --mirror aliyun")
         sys.exit(1)
 
+    # 安装项目本身（editable mode）
+    print(f"\n📦 安装项目...")
+    try:
+        install_cmd = pip_cmd + ["install", "-e", ".", "--no-deps"]
+        if mirror:
+            mirror_url = MIRRORS.get(mirror, mirror)
+            install_cmd.extend(["-i", mirror_url])
+            host = mirror_url.split("//")[1].split("/")[0]
+            install_cmd.extend(["--trusted-host", host])
+        subprocess.run(install_cmd, capture_output=True, text=True, timeout=60, cwd=str(project_dir))
+        print("✅ 项目安装成功")
+    except Exception as e:
+        print(f"⚠️  项目安装警告: {e}")
+
     # 验证安装
     print(f"\n🔍 验证安装...")
     results = verify_installation(pip_cmd)
@@ -296,10 +310,11 @@ def main():
     if all_ok:
         print("🎉 安装完成！")
         print("\n📝 使用方法:")
-        print(f"   1. 运行服务器: python {project_dir / 'index.py'}")
+        print(f"   1. 运行服务器: python -m ocr_mcp")
         if venv_dir:
-            print(f"   2. 或使用启动脚本: ./run.sh (Linux/Mac) / run.bat (Windows)")
+            print(f"   2. 或使用启动脚本: ./run.sh")
         print(f"   3. 查看 MCP 配置: {project_dir / 'mcp_config.example.json'}")
+        print(f"\n💡 将 MCP 配置添加到你的 AI 工具中即可使用！")
     else:
         print("⚠️ 安装完成，但部分依赖可能有问题")
     print("=" * 60)
