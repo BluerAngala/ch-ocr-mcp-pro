@@ -172,8 +172,10 @@ def verify_installation(pip_cmd: list[str]) -> dict:
 
 def generate_launcher(project_dir: Path, venv_dir: Path) -> None:
     """生成启动脚本"""
+    src_dir = project_dir / "src"
     # Windows
     bat_content = f"""@echo off
+set PYTHONPATH={src_dir}
 "{venv_dir / 'Scripts' / 'python.exe'}" -m ocr_mcp %*
 """
     bat_path = project_dir / "run.bat"
@@ -181,7 +183,7 @@ def generate_launcher(project_dir: Path, venv_dir: Path) -> None:
 
     # Unix
     sh_content = f"""#!/bin/bash
-"{venv_dir / 'bin' / 'python'}" -m ocr_mcp "$@"
+PYTHONPATH="{src_dir}" "{venv_dir / 'bin' / 'python'}" -m ocr_mcp "$@"
 """
     sh_path = project_dir / "run.sh"
     sh_path.write_text(sh_content, encoding="utf-8")
@@ -193,6 +195,7 @@ def generate_launcher(project_dir: Path, venv_dir: Path) -> None:
 def generate_mcp_config(project_dir: Path, venv_dir: Path) -> None:
     """生成 MCP 配置示例"""
     python_path = venv_dir / ("Scripts/python.exe" if platform.system() == "Windows" else "bin/python")
+    src_dir = project_dir / "src"
 
     config = {
         "mcpServers": {
@@ -202,6 +205,7 @@ def generate_mcp_config(project_dir: Path, venv_dir: Path) -> None:
                 "env": {
                     "PYTHONUTF8": "1",
                     "PYTHONUNBUFFERED": "1",
+                    "PYTHONPATH": str(src_dir),
                 }
             }
         }
