@@ -20,11 +20,11 @@ from pathlib import Path
 # 兼容 mcp 1.x 和 2.x
 try:
     from mcp.server.fastmcp import FastMCP
-    mcp = FastMCP("ocr")
+    mcp = FastMCP("ch-ocr")
 except ImportError:
     try:
         from mcp.server import MCPServer
-        mcp = MCPServer("ocr")
+        mcp = MCPServer("ch-ocr")
     except ImportError:
         raise ImportError("Please install mcp: pip install mcp")
 

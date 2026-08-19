@@ -1,6 +1,8 @@
-# OCR MCP Pro - 多引擎 OCR 服务器（增强版）
+# CH OCR MCP Pro - 多引擎 OCR 服务器
 
 基于 [Prekzursil 的 ocr-mcp](https://github.com/Prekzursil/abbyy-finereader-ocr-mcp) 改造，增加了**自动安装依赖**和**国内镜像加速**功能。
+
+> 🇨🇳 专为中国用户优化，支持国内镜像加速安装
 
 ## ✨ 新增功能
 
@@ -17,8 +19,8 @@
 
 ```bash
 # 克隆项目
-git clone https://github.com/your-repo/ocr-mcp-pro.git
-cd ocr-mcp-pro
+git clone https://github.com/BluerAngala/ch-ocr-mcp-pro.git
+cd ch-ocr-mcp-pro
 
 # 使用国内镜像自动安装
 python setup.py --mirror tsinghua
@@ -63,13 +65,13 @@ pip install -i https://pypi.tuna.tsinghua.edu.cn/simple/ \
 ```json
 {
   "mcpServers": {
-    "ocr": {
+    "ch-ocr": {
       "command": "/path/to/.venv/bin/python",
       "args": ["-m", "ocr_mcp"],
       "env": {
         "PYTHONUTF8": "1",
         "PYTHONUNBUFFERED": "1",
-        "PYTHONPATH": "/path/to/ocr-mcp-pro/src"
+        "PYTHONPATH": "/path/to/ch-ocr-mcp-pro/src"
       }
     }
   }
@@ -81,11 +83,11 @@ pip install -i https://pypi.tuna.tsinghua.edu.cn/simple/ \
 ```json
 {
   "github.copilot.chat.mcp.servers": {
-    "ocr": {
+    "ch-ocr": {
       "command": "/path/to/.venv/bin/python",
       "args": ["-m", "ocr_mcp"],
       "env": {
-        "PYTHONPATH": "/path/to/ocr-mcp-pro/src"
+        "PYTHONPATH": "/path/to/ch-ocr-mcp-pro/src"
       }
     }
   }
@@ -95,16 +97,16 @@ pip install -i https://pypi.tuna.tsinghua.edu.cn/simple/ \
 ### Codex
 
 ```toml
-[mcp_servers.ocr]
+[mcp_servers.ch-ocr]
 command = "/path/to/.venv/bin/python"
 args = ["-m", "ocr_mcp"]
 startup_timeout_sec = 60
 tool_timeout_sec = 300
 
-[mcp_servers.ocr.env]
+[mcp_servers.ch-ocr.env]
 PYTHONUTF8 = "1"
 PYTHONUNBUFFERED = "1"
-PYTHONPATH = "/path/to/ocr-mcp-pro/src"
+PYTHONPATH = "/path/to/ch-ocr-mcp-pro/src"
 ```
 
 ## 🔍 使用示例

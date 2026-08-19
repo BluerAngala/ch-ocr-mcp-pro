@@ -1,9 +1,11 @@
-# abbyy-finereader-ocr-mcp — Multi-Engine OCR MCP Server
+# CH OCR MCP Pro — Multi-Engine OCR MCP Server
 
 A [Model Context Protocol](https://modelcontextprotocol.io) server that gives AI
 assistants (Claude Code, Codex, Cursor, …) **OCR with first-class accuracy handling
 and evaluation**. It wraps three engines behind one interface and can score and
 compare them:
+
+> 🇨🇳 Optimized for Chinese users with auto-install and China mirror support
 
 | Engine | Backend | Local? | Confidence | Notes |
 |--------|---------|--------|-----------|-------|
@@ -50,43 +52,70 @@ compare them:
 - **ABBYY FineReader 16** (optional): a local install enables the FineReader engine
   (Regular-CLI clipboard mode). Headless file output requires ABBYY's Extended CLI license.
 
-## Install
+## Quick Start (Auto Install)
 
 ```bash
-git clone https://github.com/Prekzursil/abbyy-finereader-ocr-mcp
-cd abbyy-finereader-ocr-mcp
-uv venv --python 3.12
-uv pip install -e .
-# (first OCR call downloads the small RapidOCR ONNX models, ~?? MB, cached locally)
+git clone https://github.com/BluerAngala/ch-ocr-mcp-pro.git
+cd ch-ocr-mcp-pro
+
+# Auto install with China mirror
+python setup.py --mirror tsinghua
+
+# Check installation
+python setup.py --check
 ```
 
 ## Configure
 
-### Claude Code
-```bash
-claude mcp add ocr -s user -- "/abs/path/abbyy-finereader-ocr-mcp/.venv/Scripts/python.exe" "/abs/path/abbyy-finereader-ocr-mcp/index.py"
-```
+Run `setup.py` and it will generate `mcp_config.example.json` automatically.
 
-### Codex (`~/.codex/config.toml`)
-```toml
-[mcp_servers.ocr]
-command = "D:\\path\\abbyy-finereader-ocr-mcp\\.venv\\Scripts\\python.exe"
-args = ["D:\\path\\abbyy-finereader-ocr-mcp\\index.py"]
-startup_timeout_sec = 60
-tool_timeout_sec = 300
+### Claude Desktop
 
-[mcp_servers.ocr.env]
-PYTHONUTF8 = "1"
-PYTHONUNBUFFERED = "1"
-```
-
-### Generic MCP client (`mcp.json`)
 ```json
 {
   "mcpServers": {
-    "ocr": { "command": "/abs/path/.venv/bin/python", "args": ["/abs/path/index.py"] }
+    "ch-ocr": {
+      "command": "/path/to/.venv/bin/python",
+      "args": ["-m", "ocr_mcp"],
+      "env": {
+        "PYTHONUTF8": "1",
+        "PYTHONUNBUFFERED": "1",
+        "PYTHONPATH": "/path/to/ch-ocr-mcp-pro/src"
+      }
+    }
   }
 }
+```
+
+### VS Code Copilot
+
+```json
+{
+  "github.copilot.chat.mcp.servers": {
+    "ch-ocr": {
+      "command": "/path/to/.venv/bin/python",
+      "args": ["-m", "ocr_mcp"],
+      "env": {
+        "PYTHONPATH": "/path/to/ch-ocr-mcp-pro/src"
+      }
+    }
+  }
+}
+```
+
+### Codex (`~/.codex/config.toml`)
+
+```toml
+[mcp_servers.ch-ocr]
+command = "/path/to/.venv/bin/python"
+args = ["-m", "ocr_mcp"]
+startup_timeout_sec = 60
+tool_timeout_sec = 300
+
+[mcp_servers.ch-ocr.env]
+PYTHONUTF8 = "1"
+PYTHONUNBUFFERED = "1"
+PYTHONPATH = "/path/to/ch-ocr-mcp-pro/src"
 ```
 
 ## Usage examples

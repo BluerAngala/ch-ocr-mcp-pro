@@ -1,5 +1,5 @@
 [project]
-name = "ocr-mcp-pro"
+name = "ch-ocr-mcp-pro"
 version = "0.2.0"
 description = "Multi-engine OCR MCP server with auto-install and China mirror support. 支持自动安装、国内镜像加速的多引擎 OCR MCP 服务器。"
 requires-python = ">=3.12"
