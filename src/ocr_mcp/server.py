@@ -530,7 +530,39 @@ def install_dependencies(
         include_optional: 是否同时安装可选依赖（opencv, pytesseract 等）。
         upgrade: 是否升级已安装的包。
     
-    返回 JSON: {success, installed, mirror, output}"""
+    返回 JSON: {success, installed, skipped, mirror, output}"""
+    
+    # 先检查哪些依赖已安装
+    deps = CORE_DEPENDENCIES[:]
+    if include_optional:
+        deps.extend(OPTIONAL_DEPENDENCIES)
+    
+    # 检查已安装的包
+    installed = []
+    missing = []
+    for dep in deps:
+        pkg_name = dep.split(">=")[0].split("==")[0].split("<")[0].strip()
+        try:
+            result = subprocess.run(
+                [sys.executable, "-m", "pip", "show", pkg_name],
+                capture_output=True, text=True, timeout=10
+            )
+            if result.returncode == 0:
+                installed.append(pkg_name)
+            else:
+                missing.append(dep)
+        except Exception:
+            missing.append(dep)
+    
+    # 如果没有缺失的依赖，直接返回
+    if not missing and not upgrade:
+        return json.dumps({
+            "success": True,
+            "installed": installed,
+            "skipped": True,
+            "message": "所有依赖已安装，无需重复安装",
+            "all_required_ok": True,
+        }, indent=2, ensure_ascii=False)
     
     # 构建 pip 命令
     cmd = [sys.executable, "-m", "pip", "install"]
@@ -542,15 +574,14 @@ def install_dependencies(
     mirror_url = MIRRORS.get(mirror, mirror)
     if mirror_url:
         cmd.extend(["-i", mirror_url])
-        # 提取 host 用于 trusted-host
         host = mirror_url.split("//")[1].split("/")[0]
         cmd.extend(["--trusted-host", host])
     
-    # 添加依赖
-    deps = CORE_DEPENDENCIES[:]
-    if include_optional:
-        deps.extend(OPTIONAL_DEPENDENCIES)
-    cmd.extend(deps)
+    # 只安装缺失的依赖
+    if missing:
+        cmd.extend(missing)
+    else:
+        cmd.extend(deps)
     
     try:
         result = subprocess.run(
@@ -566,8 +597,10 @@ def install_dependencies(
         
         return json.dumps({
             "success": result.returncode == 0,
+            "installed": installed,
+            "installed_now": missing if result.returncode == 0 else [],
+            "skipped": False,
             "mirror": mirror_url,
-            "dependencies": deps,
             "all_required_ok": new_status["all_required_ok"],
             "status": new_status["dependencies"],
             "output": result.stdout[-2000:] if result.stdout else "",
