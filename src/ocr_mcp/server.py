@@ -449,6 +449,75 @@ OPTIONAL_DEPENDENCIES = [
     "pyperclip>=1.8",
 ]
 
+# 项目 GitHub 仓库
+GITHUB_REPO = "BluerAngala/ch-ocr-mcp-pro"
+GITHUB_API = f"https://api.github.com/repos/{GITHUB_REPO}"
+
+
+@mcp.tool()
+def check_update() -> str:
+    """检查是否有新版本可用。
+    
+    比较本地版本与 GitHub 最新版本，如有更新会提示。
+    
+    返回 JSON: {current_version, latest_version, has_update, update_command}"""
+    import urllib.request
+    import json as _json
+    
+    # 获取本地版本
+    from . import __version__ as current_version
+    
+    # 获取 GitHub 最新版本
+    try:
+        req = urllib.request.Request(
+            f"{GITHUB_API}/releases/latest",
+            headers={"User-Agent": "ch-ocr-mcp-pro"}
+        )
+        with urllib.request.urlopen(req, timeout=10) as resp:
+            data = _json.loads(resp.read())
+            latest_version = data.get("tag_name", "").lstrip("v")
+            release_url = data.get("html_url", "")
+    except Exception as e:
+        # 如果获取失败，尝试获取 tags
+        try:
+            req = urllib.request.Request(
+                f"{GITHUB_API}/tags?per_page=1",
+                headers={"User-Agent": "ch-ocr-mcp-pro"}
+            )
+            with urllib.request.urlopen(req, timeout=10) as resp:
+                data = _json.loads(resp.read())
+                if data:
+                    latest_version = data[0].get("name", "").lstrip("v")
+                    release_url = data[0].get("commit", {}).get("html_url", "")
+                else:
+                    latest_version = "unknown"
+                    release_url = ""
+        except Exception:
+            latest_version = "unknown"
+            release_url = ""
+    
+    # 比较版本
+    has_update = False
+    if latest_version != "unknown":
+        try:
+            from packaging.version import Version
+            has_update = Version(latest_version) > Version(current_version)
+        except ImportError:
+            # 简单字符串比较
+            has_update = latest_version != current_version
+    
+    # 获取项目路径
+    project_dir = Path(__file__).parent.parent.parent
+    
+    return json.dumps({
+        "current_version": current_version,
+        "latest_version": latest_version,
+        "has_update": has_update,
+        "release_url": release_url,
+        "update_command": f"cd {project_dir} && git pull && python setup.py --mirror tsinghua" if has_update else None,
+        "docs": RAPIDOCR_DOCS,
+    }, indent=2, ensure_ascii=False)
+
 
 @mcp.tool()
 def check_environment() -> str:

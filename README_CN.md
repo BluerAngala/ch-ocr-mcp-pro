@@ -72,6 +72,7 @@ cat mcp_config.example.json
 | 工具 | 功能 |
 |------|------|
 | `check_environment` | 检查环境和依赖状态 |
+| `check_update` | 检查是否有新版本可用 |
 | `install_dependencies` | 自动安装依赖（支持镜像） |
 | `list_engines` | 列出可用 OCR 引擎 |
 | `ocr_image` | 图片 OCR 识别 |

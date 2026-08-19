@@ -86,6 +86,7 @@ cat mcp_config.example.json
 | Tool | Description |
 |------|-------------|
 | `check_environment` | Check environment and dependencies |
+| `check_update` | Check if new version is available |
 | `install_dependencies` | Auto-install dependencies (supports mirrors) |
 | `list_engines()` | Which engines are usable on this machine |
 | `ocr_image(path, engine, lang)` | OCR one image |
