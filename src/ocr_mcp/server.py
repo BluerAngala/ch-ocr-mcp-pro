@@ -245,6 +245,108 @@ def batch_ocr(paths_or_glob: str, engine: str = "auto", lang: str = "en") -> str
 
 
 @mcp.tool()
+def batch_ocr_pdfs(
+    paths_or_glob: str, 
+    engine: str = "auto", 
+    lang: str = "en", 
+    pages: str = "all", 
+    dpi: int = 300
+) -> str:
+    """OCR many PDF files. `paths_or_glob` is a glob (e.g. '/docs/*.pdf') or a
+    JSON list of absolute paths.
+    
+    Each PDF is rasterized to images (via PyMuPDF), then each page is OCR'd.
+    
+    Args:
+        paths_or_glob: glob pattern or JSON list of PDF paths.
+        engine: 'auto' (RapidOCR), 'rapidocr', 'tesseract', or 'finereader'.
+        lang: ISO 639-1 code.
+        pages: 'all' or a range like '1-3,5'.
+        dpi: rasterization DPI (default 300).
+    
+    Returns JSON: {count, results:[{path, page_count, full_text, ...}]}."""
+    try:
+        name = _resolve_engine(engine)
+    except ValueError as e:
+        return json.dumps({"error": str(e)})
+    
+    paths: list[str]
+    s = paths_or_glob.strip()
+    if s.startswith("["):
+        try:
+            paths = json.loads(s)
+        except Exception as e:
+            return json.dumps({"error": f"bad JSON path list: {e}"})
+    else:
+        paths = _glob.glob(s)
+    
+    if not paths:
+        return json.dumps({"error": f"no files matched: {paths_or_glob}"})
+    
+    # Check allowed dirs
+    if _ALLOWED:
+        blocked = [p for p in paths if _check_path(p)]
+        if blocked:
+            return json.dumps({
+                "error": f"{len(blocked)} path(s) outside OCR_MCP_ALLOWED_DIRS",
+                "examples": blocked[:3],
+            })
+    
+    results = []
+    for pdf_path in paths:
+        if not Path(pdf_path).is_file():
+            results.append({
+                "path": pdf_path,
+                "error": "file not found",
+                "ok": False,
+            })
+            continue
+        
+        if not pdf_path.lower().endswith('.pdf'):
+            results.append({
+                "path": pdf_path,
+                "error": "not a PDF file",
+                "ok": False,
+            })
+            continue
+        
+        try:
+            # Convert PDF pages to images
+            imgs, notes = _eval.pdf_to_images(pdf_path, pages=pages, dpi=dpi)
+            
+            page_results = []
+            texts = []
+            for i, img in enumerate(imgs, start=1):
+                res = ENGINES[name].ocr_image(img, lang=lang).to_dict()
+                res["page"] = i
+                page_results.append(res)
+                texts.append(res.get("text", ""))
+            
+            # Clean up temp images
+            for img in imgs:
+                with contextlib.suppress(OSError):
+                    os.remove(img)
+            
+            results.append({
+                "path": pdf_path,
+                "ok": True,
+                "page_count": len(imgs),
+                "pages": page_results,
+                "full_text": "\n\n".join(texts),
+                "notes": notes,
+            })
+        except Exception as e:
+            results.append({
+                "path": pdf_path,
+                "error": str(e),
+                "ok": False,
+            })
+    
+    return json.dumps({
+        "engine": name,
+        "count": len(results),
+        "results": results,
+    }, indent=2, ensure_ascii=False)
 def compare_engines(path: str, lang: str = "en") -> str:
     """Run ALL available engines on one image and compare them — the core
     accuracy tool when you have no ground truth.

@@ -89,8 +89,9 @@ cat mcp_config.example.json
 | `install_dependencies` | Auto-install dependencies (supports mirrors) |
 | `list_engines()` | Which engines are usable on this machine |
 | `ocr_image(path, engine, lang)` | OCR one image |
-| `ocr_pdf(path, engine, lang, pages, dpi)` | OCR a PDF |
+| `ocr_pdf(path, engine, lang, pages, dpi)` | OCR a PDF (single file) |
 | `batch_ocr(paths_or_glob, engine, lang)` | OCR many images |
+| `batch_ocr_pdfs(paths_or_glob, engine, lang, pages, dpi)` | OCR many PDF files |
 | `compare_engines(path, lang)` | Run all engines, compare agreement |
 | `evaluate_accuracy(ground_truth, ocr_text/ocr_path)` | CER/WER vs ground truth |
 

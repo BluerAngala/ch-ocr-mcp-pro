@@ -75,8 +75,9 @@ cat mcp_config.example.json
 | `install_dependencies` | 自动安装依赖（支持镜像） |
 | `list_engines` | 列出可用 OCR 引擎 |
 | `ocr_image` | 图片 OCR 识别 |
-| `ocr_pdf` | PDF OCR 识别 |
-| `batch_ocr` | 批量 OCR |
+| `ocr_pdf` | PDF OCR 识别（单个） |
+| `batch_ocr` | 批量 OCR 图片 |
+| `batch_ocr_pdfs` | 批量 OCR PDF 文件 |
 | `compare_engines` | 多引擎对比 |
 | `evaluate_accuracy` | 精度评估（CER/WER） |
 
