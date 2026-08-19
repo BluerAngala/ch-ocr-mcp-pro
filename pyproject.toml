@@ -2,18 +2,18 @@
 name = "ch-ocr-mcp-pro"
 version = "0.2.0"
 description = "Multi-engine OCR MCP server with auto-install and China mirror support. 支持自动安装、国内镜像加速的多引擎 OCR MCP 服务器。"
-requires-python = ">=3.12"
+requires-python = ">=3.10"
 dependencies = [
     "mcp>=1.27",
-    "rapidocr-onnxruntime>=1.4",
-    "onnxruntime>=1.26",
+    "rapidocr",  # 官方主包，参考: https://rapidai.github.io/RapidOCRDocs/latest/install_usage/rapidocr/install/
+    "onnxruntime",  # 默认推理引擎
     "pytesseract>=0.3.13",
-    "Pillow>=11",
-    "numpy>=2",
-    "pymupdf>=1.27",
-    "jiwer>=4",
-    "opencv-python-headless>=4.10",
-    "pyperclip>=1.9",
+    "Pillow>=10",
+    "numpy>=1.24",
+    "pymupdf>=1.24",
+    "jiwer>=3",
+    "opencv-python-headless>=4.8",
+    "pyperclip>=1.8",
 ]
 
 [project.optional-dependencies]

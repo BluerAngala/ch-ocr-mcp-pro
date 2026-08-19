@@ -128,6 +128,11 @@ class Engine:
 
 
 class RapidOCREngine(Engine):
+    """RapidOCR engine - 使用官方 rapidocr 包
+    
+    官方文档: https://rapidai.github.io/RapidOCRDocs/latest/
+    安装指南: https://rapidai.github.io/RapidOCRDocs/latest/install_usage/rapidocr/install/
+    """
     name = "rapidocr"
 
     def __init__(self) -> None:
@@ -135,19 +140,34 @@ class RapidOCREngine(Engine):
 
     def _get(self):
         if self._engine is None:
-            from rapidocr_onnxruntime import RapidOCR
-
+            # 使用官方推荐的 rapidocr 包
+            # 参考: https://rapidai.github.io/RapidOCRDocs/latest/install_usage/rapidocr/install/
+            try:
+                from rapidocr import RapidOCR
+            except ImportError:
+                # 兼容旧版本
+                from rapidocr_onnxruntime import RapidOCR
             self._engine = RapidOCR()
         return self._engine
 
     def available(self) -> tuple[bool, str]:
+        """检查 RapidOCR 是否可用
+        
+        参考: https://rapidai.github.io/RapidOCRDocs/latest/install_usage/rapidocr/install/
+        """
         try:
+            # 优先检查新版 rapidocr 包
+            import rapidocr  # noqa: F401
             import onnxruntime  # noqa: F401
-            import rapidocr_onnxruntime  # noqa: F401
-
-            return True, "ready (onnxruntime, PaddleOCR models, local/headless)"
-        except Exception as e:  # pragma: no cover
-            return False, f"import failed: {e}"
+            return True, "ready (rapidocr + onnxruntime, local/headless)"
+        except ImportError:
+            try:
+                # 兼容旧版 rapidocr_onnxruntime
+                import rapidocr_onnxruntime  # noqa: F401
+                import onnxruntime  # noqa: F401
+                return True, "ready (rapidocr_onnxruntime, local/headless)"
+            except Exception as e:  # pragma: no cover
+                return False, f"import failed: {e}. Docs: https://rapidai.github.io/RapidOCRDocs/latest/install_usage/rapidocr/install/"
 
     def ocr_image(self, path: str, lang: str = "en") -> OcrResult:
         r = OcrResult(engine=self.name)

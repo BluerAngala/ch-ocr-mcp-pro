@@ -4,6 +4,12 @@
 
 > 🇨🇳 专为中国用户优化，支持国内镜像加速安装
 
+## 📚 官方文档
+
+- **RapidOCR 官方文档**: https://rapidai.github.io/RapidOCRDocs/latest/
+- **RapidOCR 安装指南**: https://rapidai.github.io/RapidOCRDocs/latest/install_usage/rapidocr/install/
+- **RapidOCR 快速开始**: https://rapidai.github.io/RapidOCRDocs/latest/quickstart/
+
 ## ✨ 新增功能
 
 | 功能 | 说明 |

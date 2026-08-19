@@ -31,11 +31,19 @@ except ImportError:
 from . import engines as _engines
 from . import evaluation as _eval
 
+# RapidOCR 官方文档
+# https://rapidai.github.io/RapidOCRDocs/latest/
+RAPIDOCR_DOCS = "https://rapidai.github.io/RapidOCRDocs/latest/"
+RAPIDOCR_INSTALL_DOCS = "https://rapidai.github.io/RapidOCRDocs/latest/install_usage/rapidocr/install/"
+
 # 检查依赖是否完整
 def _check_dependencies() -> dict:
-    """检查核心依赖是否已安装"""
+    """检查核心依赖是否已安装
+    
+    参考: https://rapidai.github.io/RapidOCRDocs/latest/install_usage/rapidocr/install/
+    """
     deps = {
-        "rapidocr_onnxruntime": {"name": "RapidOCR", "required": True},
+        "rapidocr": {"name": "RapidOCR", "required": True},  # 官方主包
         "onnxruntime": {"name": "ONNX Runtime", "required": True},
         "PIL": {"name": "Pillow", "required": True},
         "numpy": {"name": "NumPy", "required": True},
@@ -64,7 +72,8 @@ if not _DEPS_STATUS["all_required_ok"]:
                if info["required"] and not info["installed"]]
     print(f"⚠️  缺少必需依赖: {', '.join(missing)}", file=sys.stderr)
     print(f"   请运行: python setup.py --mirror tsinghua", file=sys.stderr)
-    print(f"   或者: pip install rapidocr-onnxruntime onnxruntime Pillow numpy pymupdf jiwer", file=sys.stderr)
+    print(f"   或者: pip install rapidocr onnxruntime", file=sys.stderr)
+    print(f"   📚 安装指南: {RAPIDOCR_INSTALL_DOCS}", file=sys.stderr)
 
 try:
     ENGINES = _engines.build_engines()
@@ -317,10 +326,15 @@ MIRRORS = {
     "huawei": "https://repo.huaweicloud.com/repository/pypi/simple/",
 }
 
-# 核心依赖列表
+# RapidOCR 官方文档
+RAPIDOCR_DOCS = "https://rapidai.github.io/RapidOCRDocs/latest/"
+RAPIDOCR_INSTALL_DOCS = "https://rapidai.github.io/RapidOCRDocs/latest/install_usage/rapidocr/install/"
+
+# 核心依赖列表 - 使用官方推荐的 rapidocr 包
+# 参考: https://rapidai.github.io/RapidOCRDocs/latest/install_usage/rapidocr/install/
 CORE_DEPENDENCIES = [
-    "rapidocr-onnxruntime>=1.2",
-    "onnxruntime>=1.20",
+    "rapidocr",  # 官方主包
+    "onnxruntime",  # 默认推理引擎
     "Pillow>=10",
     "numpy>=1.24",
     "pymupdf>=1.24",
@@ -394,6 +408,10 @@ def check_environment() -> str:
         "engines": engine_status,
         "tesseract": {"available": tesseract_path is not None, "path": tesseract_path},
         "recommendations": recommendations,
+        "docs": {
+            "rapidocr": RAPIDOCR_DOCS,
+            "install": RAPIDOCR_INSTALL_DOCS,
+        }
     }, indent=2, ensure_ascii=False)
 
 

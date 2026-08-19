@@ -24,11 +24,16 @@ MIRRORS = {
     "huawei": "https://repo.huaweicloud.com/repository/pypi/simple/",
 }
 
-# 依赖列表
+# RapidOCR 官方文档
+# https://rapidai.github.io/RapidOCRDocs/latest/install_usage/rapidocr/install/
+RAPIDOCR_DOCS = "https://rapidai.github.io/RapidOCRDocs/latest/"
+
+# 依赖列表 - 使用官方推荐的 rapidocr 包
+# 参考: https://rapidai.github.io/RapidOCRDocs/latest/install_usage/rapidocr/install/
 DEPENDENCIES = [
     "mcp>=1.27",
-    "rapidocr-onnxruntime>=1.2",
-    "onnxruntime>=1.20",
+    "rapidocr",  # 官方主包，替代 rapidocr_onnxruntime
+    "onnxruntime",  # 默认推理引擎
     "pytesseract>=0.3.13",
     "Pillow>=10",
     "numpy>=1.24",
@@ -126,7 +131,7 @@ def verify_installation(pip_cmd: list[str]) -> dict:
     """验证安装"""
     results = {}
     packages = [
-        ("rapidocr_onnxruntime", "RapidOCR"),
+        ("rapidocr", "RapidOCR"),  # 官方主包
         ("onnxruntime", "ONNX Runtime"),
         ("PIL", "Pillow"),
         ("numpy", "NumPy"),
@@ -323,8 +328,10 @@ def main():
             print(f"   2. 或使用启动脚本: ./run.sh")
         print(f"   3. 查看 MCP 配置: {project_dir / 'mcp_config.example.json'}")
         print(f"\n💡 将 MCP 配置添加到你的 AI 工具中即可使用！")
+        print(f"\n📚 RapidOCR 官方文档: {RAPIDOCR_DOCS}")
     else:
         print("⚠️ 安装完成，但部分依赖可能有问题")
+        print(f"\n📚 RapidOCR 安装指南: {RAPIDOCR_DOCS}install_usage/rapidocr/install/")
     print("=" * 60)
 
 
