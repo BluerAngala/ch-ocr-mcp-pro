@@ -1,0 +1,14 @@
+{
+  "mcpServers": {
+    "ocr": {
+      "command": "/Users/bluer/Documents/vibecoding/未命名文件夹/ocr-mcp-pro/.venv/bin/python",
+      "args": [
+        "/Users/bluer/Documents/vibecoding/未命名文件夹/ocr-mcp-pro/index.py"
+      ],
+      "env": {
+        "PYTHONUTF8": "1",
+        "PYTHONUNBUFFERED": "1"
+      }
+    }
+  }
+}

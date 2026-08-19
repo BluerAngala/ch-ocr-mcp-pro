@@ -1,7 +1,8 @@
 """Multi-engine OCR MCP server.
 
 Engines: RapidOCR (default, local/headless), Tesseract, ABBYY FineReader 16.
-Tools: list_engines, ocr_image, ocr_pdf, batch_ocr, compare_engines, evaluate_accuracy.
+Tools: list_engines, ocr_image, ocr_pdf, batch_ocr, compare_engines, evaluate_accuracy,
+       check_environment, install_dependencies.
 
 Run: python index.py   (stdio MCP transport)
 """
@@ -12,6 +13,8 @@ import contextlib
 import glob as _glob
 import json
 import os
+import subprocess
+import sys
 from pathlib import Path
 
 from mcp.server.fastmcp import FastMCP
@@ -20,8 +23,49 @@ import engines as _engines
 import evaluation as _eval
 
 mcp = FastMCP("ocr")
-ENGINES = _engines.build_engines()
-DEFAULT_ENGINE = "rapidocr"
+
+# 检查依赖是否完整
+def _check_dependencies() -> dict:
+    """检查核心依赖是否已安装"""
+    deps = {
+        "rapidocr_onnxruntime": {"name": "RapidOCR", "required": True},
+        "onnxruntime": {"name": "ONNX Runtime", "required": True},
+        "PIL": {"name": "Pillow", "required": True},
+        "numpy": {"name": "NumPy", "required": True},
+        "fitz": {"name": "PyMuPDF", "required": True},
+        "jiwer": {"name": "jiwer", "required": True},
+        "cv2": {"name": "OpenCV", "required": False},
+        "pytesseract": {"name": "pytesseract", "required": False},
+    }
+    results = {}
+    all_required_ok = True
+    for module, info in deps.items():
+        try:
+            __import__(module)
+            results[info["name"]] = {"installed": True, "required": info["required"]}
+        except ImportError:
+            results[info["name"]] = {"installed": False, "required": info["required"]}
+            if info["required"]:
+                all_required_ok = False
+    return {"all_required_ok": all_required_ok, "dependencies": results}
+
+
+# 启动时检查依赖
+_DEPS_STATUS = _check_dependencies()
+if not _DEPS_STATUS["all_required_ok"]:
+    missing = [name for name, info in _DEPS_STATUS["dependencies"].items() 
+               if info["required"] and not info["installed"]]
+    print(f"⚠️  缺少必需依赖: {', '.join(missing)}", file=sys.stderr)
+    print(f"   请运行: python setup.py --mirror tsinghua", file=sys.stderr)
+    print(f"   或者: pip install rapidocr-onnxruntime onnxruntime Pillow numpy pymupdf jiwer", file=sys.stderr)
+
+try:
+    ENGINES = _engines.build_engines()
+    DEFAULT_ENGINE = "rapidocr"
+except Exception as e:
+    print(f"⚠️  引擎初始化警告: {e}", file=sys.stderr)
+    ENGINES = {}
+    DEFAULT_ENGINE = "rapidocr"
 
 # Optional sandbox: if OCR_MCP_ALLOWED_DIRS is set (os.pathsep-separated), tools may
 # only read files under those directories. Unset = read anything the process can
@@ -254,6 +298,166 @@ def evaluate_accuracy(
     metrics = _eval.evaluate(hypothesis, reference)
     metrics["evaluated"] = used
     return json.dumps(metrics, indent=2, ensure_ascii=False)
+
+
+# ==================== 新增工具 ====================
+
+# 国内镜像源
+MIRRORS = {
+    "tsinghua": "https://pypi.tuna.tsinghua.edu.cn/simple/",
+    "aliyun": "https://mirrors.aliyun.com/pypi/simple/",
+    "ustc": "https://pypi.mirrors.ustc.edu.cn/simple/",
+    "huawei": "https://repo.huaweicloud.com/repository/pypi/simple/",
+}
+
+# 核心依赖列表
+CORE_DEPENDENCIES = [
+    "rapidocr-onnxruntime>=1.2",
+    "onnxruntime>=1.20",
+    "Pillow>=10",
+    "numpy>=1.24",
+    "pymupdf>=1.24",
+    "jiwer>=3",
+]
+
+OPTIONAL_DEPENDENCIES = [
+    "opencv-python-headless>=4.8",
+    "pytesseract>=0.3.13",
+    "pyperclip>=1.8",
+]
+
+
+@mcp.tool()
+def check_environment() -> str:
+    """检查当前环境和依赖状态。
+    
+    返回 JSON: {python, system, dependencies, engines, recommendations}"""
+    import platform
+    
+    # 系统信息
+    system_info = {
+        "platform": platform.system(),
+        "arch": platform.machine(),
+        "python_version": platform.python_version(),
+        "python_path": sys.executable,
+        "is_arm": platform.machine() in ("arm64", "aarch64"),
+    }
+    
+    # 虚拟环境检测
+    in_venv = hasattr(sys, "real_prefix") or (
+        hasattr(sys, "base_prefix") and sys.base_prefix != sys.prefix
+    )
+    system_info["in_venv"] = in_venv
+    system_info["venv_path"] = sys.prefix if in_venv else None
+    
+    # 依赖状态
+    deps_status = _check_dependencies()
+    
+    # 引擎状态
+    engine_status = {}
+    for name, eng in ENGINES.items():
+        try:
+            ok, status = eng.available()
+            engine_status[name] = {"available": ok, "status": status}
+        except Exception as e:
+            engine_status[name] = {"available": False, "status": str(e)}
+    
+    # Tesseract 检测
+    import shutil
+    tesseract_path = shutil.which("tesseract")
+    
+    # 建议
+    recommendations = []
+    if not deps_status["all_required_ok"]:
+        missing = [name for name, info in deps_status["dependencies"].items() 
+                   if info["required"] and not info["installed"]]
+        recommendations.append(f"缺少必需依赖: {', '.join(missing)}")
+        recommendations.append("运行: python setup.py --mirror tsinghua")
+    
+    if not in_venv:
+        recommendations.append("建议使用虚拟环境: python setup.py")
+    
+    if not tesseract_path:
+        recommendations.append("Tesseract 未安装（可选，用于多引擎对比）")
+    
+    return json.dumps({
+        "system": system_info,
+        "dependencies": deps_status["dependencies"],
+        "all_required_ok": deps_status["all_required_ok"],
+        "engines": engine_status,
+        "tesseract": {"available": tesseract_path is not None, "path": tesseract_path},
+        "recommendations": recommendations,
+    }, indent=2, ensure_ascii=False)
+
+
+@mcp.tool()
+def install_dependencies(
+    mirror: str = "tsinghua",
+    include_optional: bool = False,
+    upgrade: bool = False,
+) -> str:
+    """自动安装 OCR 所需依赖（支持国内镜像加速）。
+    
+    Args:
+        mirror: 镜像源名称 (tsinghua/aliyun/ustc/huawei) 或自定义 URL。
+        include_optional: 是否同时安装可选依赖（opencv, pytesseract 等）。
+        upgrade: 是否升级已安装的包。
+    
+    返回 JSON: {success, installed, mirror, output}"""
+    
+    # 构建 pip 命令
+    cmd = [sys.executable, "-m", "pip", "install"]
+    
+    if upgrade:
+        cmd.append("--upgrade")
+    
+    # 镜像配置
+    mirror_url = MIRRORS.get(mirror, mirror)
+    if mirror_url:
+        cmd.extend(["-i", mirror_url])
+        # 提取 host 用于 trusted-host
+        host = mirror_url.split("//")[1].split("/")[0]
+        cmd.extend(["--trusted-host", host])
+    
+    # 添加依赖
+    deps = CORE_DEPENDENCIES[:]
+    if include_optional:
+        deps.extend(OPTIONAL_DEPENDENCIES)
+    cmd.extend(deps)
+    
+    try:
+        result = subprocess.run(
+            cmd,
+            capture_output=True,
+            text=True,
+            timeout=300,
+            cwd=str(Path(__file__).parent),
+        )
+        
+        # 重新检查依赖
+        new_status = _check_dependencies()
+        
+        return json.dumps({
+            "success": result.returncode == 0,
+            "mirror": mirror_url,
+            "dependencies": deps,
+            "all_required_ok": new_status["all_required_ok"],
+            "status": new_status["dependencies"],
+            "output": result.stdout[-2000:] if result.stdout else "",
+            "error": result.stderr[-1000:] if result.stderr and result.returncode != 0 else "",
+        }, indent=2, ensure_ascii=False)
+        
+    except subprocess.TimeoutExpired:
+        return json.dumps({
+            "success": False,
+            "error": "安装超时（5分钟）。请检查网络连接或尝试其他镜像。",
+            "tip": "尝试: python setup.py --mirror aliyun",
+        }, indent=2, ensure_ascii=False)
+    except Exception as e:
+        return json.dumps({
+            "success": False,
+            "error": str(e),
+        }, indent=2, ensure_ascii=False)
 
 
 if __name__ == "__main__":  # pragma: no cover - stdio entrypoint, not unit-testable
