@@ -10,7 +10,30 @@
 - **RapidOCR 安装指南**: https://rapidai.github.io/RapidOCRDocs/latest/install_usage/rapidocr/install/
 - **RapidOCR 快速开始**: https://rapidai.github.io/RapidOCRDocs/latest/quickstart/
 
-## ✨ 新增功能
+## 🤖 让 AI 自动安装配置（最简单）
+
+**直接告诉你的 AI 助手（Claude/Copilot/Cursor）：**
+
+```
+帮我安装 ch-ocr-mcp-pro：
+1. git clone https://github.com/BluerAngala/ch-ocr-mcp-pro.git ~/ch-ocr-mcp-pro
+2. cd ~/ch-ocr-mcp-pro && python3 setup.py --mirror tsinghua
+3. python3 auto-config.py --client vscode
+4. 重启 VS Code
+```
+
+AI 会自动完成所有步骤！
+
+**或者更简单，让 AI 执行一条命令：**
+
+```bash
+git clone https://github.com/BluerAngala/ch-ocr-mcp-pro.git ~/ch-ocr-mcp-pro && \
+cd ~/ch-ocr-mcp-pro && \
+python3 setup.py --mirror tsinghua && \
+python3 auto-config.py --client vscode
+```
+
+## ✨ 功能特点
 
 | 功能 | 说明 |
 |------|------|
@@ -19,9 +42,7 @@
 | 📦 依赖检查 | 启动时自动检查并提示缺失依赖 |
 | 🛠️ MCP 工具 | 新增 `check_environment` 和 `install_dependencies` 工具 |
 
-## 🚀 快速开始
-
-### 方式一：自动安装（推荐）
+## 🚀 手动安装
 
 ```bash
 # 克隆项目
@@ -31,22 +52,8 @@ cd ch-ocr-mcp-pro
 # 使用国内镜像自动安装
 python setup.py --mirror tsinghua
 
-# 或使用阿里镜像
-python setup.py --mirror aliyun
-```
-
-### 方式二：手动安装
-
-```bash
-# 创建虚拟环境
-python -m venv .venv
-source .venv/bin/activate  # Linux/Mac
-# .venv\Scripts\activate   # Windows
-
-# 使用镜像安装
-pip install -i https://pypi.tuna.tsinghua.edu.cn/simple/ \
-    rapidocr-onnxruntime onnxruntime Pillow numpy pymupdf jiwer \
-    opencv-python-headless pytesseract pyperclip
+# 安装完成后，查看生成的配置
+cat mcp_config.example.json
 ```
 
 ## 🛠️ MCP 工具列表
