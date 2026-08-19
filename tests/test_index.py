@@ -12,10 +12,10 @@ from pathlib import Path
 
 import pytest
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
-import engines as eng  # noqa: E402
-import index as ix  # noqa: E402
+from ocr_mcp import engines as eng  # noqa: E402
+from ocr_mcp import server as ix  # noqa: E402
 
 
 class FakeEngine:

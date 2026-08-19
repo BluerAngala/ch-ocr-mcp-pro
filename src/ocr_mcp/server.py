@@ -4,7 +4,7 @@ Engines: RapidOCR (default, local/headless), Tesseract, ABBYY FineReader 16.
 Tools: list_engines, ocr_image, ocr_pdf, batch_ocr, compare_engines, evaluate_accuracy,
        check_environment, install_dependencies.
 
-Run: python index.py   (stdio MCP transport)
+Run: python -m ocr_mcp   (stdio MCP transport)
 """
 
 from __future__ import annotations
@@ -19,8 +19,8 @@ from pathlib import Path
 
 from mcp.server.fastmcp import FastMCP
 
-import engines as _engines
-import evaluation as _eval
+from . import engines as _engines
+from . import evaluation as _eval
 
 mcp = FastMCP("ocr")
 
@@ -460,5 +460,10 @@ def install_dependencies(
         }, indent=2, ensure_ascii=False)
 
 
-if __name__ == "__main__":  # pragma: no cover - stdio entrypoint, not unit-testable
+def main():
+    """Main entry point for the MCP server."""
     mcp.run()
+
+
+if __name__ == "__main__":  # pragma: no cover - stdio entrypoint, not unit-testable
+    main()

@@ -9,12 +9,12 @@ from pathlib import Path
 
 import pytest
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
 from PIL import Image, ImageDraw, ImageFont  # noqa: E402
 
-import engines as eng_mod  # noqa: E402
-import evaluation as ev  # noqa: E402
+from ocr_mcp import engines as eng_mod  # noqa: E402
+from ocr_mcp import evaluation as ev  # noqa: E402
 
 # Live end-to-end checks against the real RapidOCR backend. Opt-in only: requires
 # both the heavy onnxruntime/PaddleOCR stack AND OCR_MCP_LIVE=1 (the first call

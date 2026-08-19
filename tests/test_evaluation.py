@@ -9,9 +9,9 @@ import cv2
 import fitz
 import numpy as np
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
-import evaluation as ev  # noqa: E402
+from ocr_mcp import evaluation as ev  # noqa: E402
 
 
 # ---------------------------------------------------------------- evaluate ----
