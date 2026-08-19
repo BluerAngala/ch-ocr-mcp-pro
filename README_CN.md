@@ -56,6 +56,8 @@ pip install -i https://pypi.tuna.tsinghua.edu.cn/simple/ \
 
 ## 📋 配置 MCP
 
+运行 `setup.py` 后会自动生成 `mcp_config.example.json`，直接复制到你的 AI工具配置中即可。
+
 ### Claude Desktop
 
 ```json
@@ -63,10 +65,11 @@ pip install -i https://pypi.tuna.tsinghua.edu.cn/simple/ \
   "mcpServers": {
     "ocr": {
       "command": "/path/to/.venv/bin/python",
-      "args": ["/path/to/index.py"],
+      "args": ["-m", "ocr_mcp"],
       "env": {
         "PYTHONUTF8": "1",
-        "PYTHONUNBUFFERED": "1"
+        "PYTHONUNBUFFERED": "1",
+        "PYTHONPATH": "/path/to/ocr-mcp-pro/src"
       }
     }
   }
@@ -80,7 +83,10 @@ pip install -i https://pypi.tuna.tsinghua.edu.cn/simple/ \
   "github.copilot.chat.mcp.servers": {
     "ocr": {
       "command": "/path/to/.venv/bin/python",
-      "args": ["/path/to/index.py"]
+      "args": ["-m", "ocr_mcp"],
+      "env": {
+        "PYTHONPATH": "/path/to/ocr-mcp-pro/src"
+      }
     }
   }
 }
@@ -91,13 +97,14 @@ pip install -i https://pypi.tuna.tsinghua.edu.cn/simple/ \
 ```toml
 [mcp_servers.ocr]
 command = "/path/to/.venv/bin/python"
-args = ["/path/to/index.py"]
+args = ["-m", "ocr_mcp"]
 startup_timeout_sec = 60
 tool_timeout_sec = 300
 
 [mcp_servers.ocr.env]
 PYTHONUTF8 = "1"
 PYTHONUNBUFFERED = "1"
+PYTHONPATH = "/path/to/ocr-mcp-pro/src"
 ```
 
 ## 🔍 使用示例
