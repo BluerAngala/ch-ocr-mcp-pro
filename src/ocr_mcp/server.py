@@ -17,12 +17,19 @@ import subprocess
 import sys
 from pathlib import Path
 
-from mcp.server.fastmcp import FastMCP
+# 兼容 mcp 1.x 和 2.x
+try:
+    from mcp.server.fastmcp import FastMCP
+    mcp = FastMCP("ocr")
+except ImportError:
+    try:
+        from mcp.server import MCPServer
+        mcp = MCPServer("ocr")
+    except ImportError:
+        raise ImportError("Please install mcp: pip install mcp")
 
 from . import engines as _engines
 from . import evaluation as _eval
-
-mcp = FastMCP("ocr")
 
 # 检查依赖是否完整
 def _check_dependencies() -> dict:
