@@ -1,3 +1,13 @@
+<div align="center">
+
+**🌐 Language / 语言选择**
+
+[English](./README.md) | [中文](./README_CN.md)
+
+</div>
+
+---
+
 # CH OCR MCP Pro — Multi-Engine OCR MCP Server
 
 A [Model Context Protocol](https://modelcontextprotocol.io) server that gives AI

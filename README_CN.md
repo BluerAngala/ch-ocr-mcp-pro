@@ -1,3 +1,13 @@
+<div align="center">
+
+**🌐 语言选择 / Language**
+
+[English](./README.md) | [中文](./README_CN.md)
+
+</div>
+
+---
+
 # CH OCR MCP Pro - 多引擎 OCR 服务器
 
 基于 [Prekzursil 的 ocr-mcp](https://github.com/Prekzursil/abbyy-finereader-ocr-mcp) 改造，增加了**自动安装依赖**和**国内镜像加速**功能。
