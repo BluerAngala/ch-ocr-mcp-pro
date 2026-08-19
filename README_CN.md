@@ -12,26 +12,27 @@
 
 ## 🤖 让 AI 自动安装配置（最简单）
 
-**直接告诉你的 AI 助手（Claude/Copilot/Cursor）：**
+**直接告诉你的 AI 助手：**
 
 ```
-帮我安装 ch-ocr-mcp-pro：
-1. git clone https://github.com/BluerAngala/ch-ocr-mcp-pro.git ~/ch-ocr-mcp-pro
-2. cd ~/ch-ocr-mcp-pro && python3 setup.py --mirror tsinghua
-3. python3 auto-config.py --client vscode
-4. 重启 VS Code
+帮我安装并配置 ch-ocr-mcp-pro
 ```
 
-AI 会自动完成所有步骤！
+**AI 会自动：**
+1. 克隆项目
+2. 安装依赖
+3. 检测你使用的 AI 工具（VS Code/Claude/Cursor 等）
+4. 自动完成配置
 
-**或者更简单，让 AI 执行一条命令：**
+**或者让 AI 执行：**
 
 ```bash
-git clone https://github.com/BluerAngala/ch-ocr-mcp-pro.git ~/ch-ocr-mcp-pro && \
-cd ~/ch-ocr-mcp-pro && \
-python3 setup.py --mirror tsinghua && \
-python3 auto-config.py --client vscode
+git clone https://github.com/BluerAngala/ch-ocr-mcp-pro.git ~/ch-ocr-mcp-pro
+cd ~/ch-ocr-mcp-pro
+python3 auto-config.py --mirror tsinghua --output-json
 ```
+
+AI 会读取输出的 JSON，自动判断如何配置你的环境。
 
 ## ✨ 功能特点
 
