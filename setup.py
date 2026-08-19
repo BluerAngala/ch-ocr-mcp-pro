@@ -147,6 +147,10 @@ def verify_installation(pip_cmd: list[str]) -> dict:
             # pip 在 PATH 中，使用当前 Python
             python_cmd = sys.executable
 
+    # 确保 Python 路径存在
+    if not Path(python_cmd).exists():
+        python_cmd = sys.executable
+
     for module, name in packages:
         try:
             # 使用 subprocess 检查，避免当前进程的模块缓存
@@ -154,11 +158,11 @@ def verify_installation(pip_cmd: list[str]) -> dict:
                 [python_cmd, "-c", f"import {module}; print('ok')"],
                 capture_output=True,
                 text=True,
-                timeout=10,
+                timeout=30,
             )
             results[name] = "✅" if result.returncode == 0 else "❌"
-        except Exception:
-            results[name] = "❌"
+        except Exception as e:
+            results[name] = f"❌"
 
     # 检查 Tesseract（可选）
     import shutil
